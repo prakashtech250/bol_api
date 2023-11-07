@@ -52,6 +52,10 @@ def scrape_product_by_ean(ean):
         }   
     else:
         return None
+    
+@app.route('/', methods=['GET'])
+def home():
+    return jsonify({'title': 'Bol api'})
 
 @app.route('/ean/<ean>', methods=['GET'])
 def ean_details_api(ean):
