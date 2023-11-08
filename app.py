@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import httpx
 from urllib.parse import urljoin
 from rich import print
+import re
 
 app = Flask(__name__)
 
@@ -52,6 +53,10 @@ def scrape_product_by_ean(ean):
         }   
     else:
         return None
+
+def is_valid_ean(ean):
+    ean_pattern = re.compile(r'^\d{13}$')
+    return bool(ean_pattern.match(ean))
     
 @app.route('/', methods=['GET'])
 def home():
@@ -63,11 +68,15 @@ def default():
 
 @app.route('/ean/<ean>', methods=['GET'])
 def ean_details_api(ean):
-    product_details = scrape_product_by_ean(ean)
-    if product_details:
-        return jsonify(product_details)
+    if is_valid_ean(ean):
+        product_details = scrape_product_by_ean(ean)
+        if product_details:
+            return jsonify(product_details)
+        else:
+            return jsonify({'error': 'Product not found'})
     else:
-        return jsonify({'error': 'Product not found'})
+        return jsonify({'error': 'Ean code is not valid.'})
         
 if __name__=="__main__":
-    app.run(debug=True)
+    ean = '1234567890459m'
+    print(is_valid_ean(ean))
